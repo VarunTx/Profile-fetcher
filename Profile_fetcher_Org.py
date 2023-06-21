@@ -11,7 +11,6 @@ from time import sleep
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 import time
 
-
 options = ChromeOptions()
 options.add_argument("--headless")
 options.add_argument('user-agent=Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5829.0 Safari/537.36')

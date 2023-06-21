@@ -95,8 +95,3 @@ with open(filename, "w", newline="", encoding="utf-8") as file:
         writer.writerow([link, bio, cybercheck])
 
 print(f"[+] Links saved to '{filename}' file.")
-
-
-
-    
-    
