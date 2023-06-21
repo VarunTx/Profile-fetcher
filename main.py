@@ -1,17 +1,103 @@
-import requests 
-import json
-from bs4 import BeautifulSoup 
+import requests
+from bs4 import BeautifulSoup
+import csv
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+from time import sleep
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+import time
+
+options = ChromeOptions()
+#options.add_argument("--headless")
+options.add_argument('user-agent=Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5829.0 Safari/537.36')
+
+# Use ChromeDriverManager to automatically download and install the appropriate ChromeDriver
+#webdriver_path = ChromeDriverManager().install()
+#browser = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+
+webdriver_path = ChromeDriverManager().install()
+
+# Create the WebDriver instance
+browser = webdriver.Chrome(options=options)
+
+print('\n\n\n', "------------- PROFILE FETCHER v1 -------------\n")
+
+jobTitle = input("[*] Enter Job Title: ")
+location = input("[*] Enter Location: ")
 
 
-def login():
-    '''
-    link = 'https://www.linkedin.com'
-    p = 
-    '''
-    URL = 'https://www.linkedin.com'
-    s = requests.Session()
-    rv = s.get(URL + '/uas/login?trk=guest_homepage-basic_nav-header-signin')
-    p = BeautifulSoup(rv.content, "html.parser")
-    print(p)
+url = f"http://www.google.com/search?q=+%22{jobTitle}%22+%22{location}%22 -intitle:%22profiles%22 -inurl:%22dir/%22 +site:in.linkedin.com/in/ OR site:in.linkedin.com/pub/&num=100"
 
-login()
+#"CEO" "Delhi" -intitle:"profiles" -inurl:"dir/"  site:in.linkedin.com/in/ OR site:in.linkedin.com/pub/
+
+# First level: div class="MjjYud"
+# Second level: div class="g Ww4FFb vt6azd tF2Cxc asEBEc"
+# Third level: div class="kvH3mc BToiNc UK95Uc"
+# Fourth level: div class="Z26q7c UK95Uc jGGQ5e"
+# Fifth level: div class="yuRUbf"
+# Sixth level: anchor tag <a>
+
+browser.get(url)
+soup = BeautifulSoup(browser.page_source, 'html.parser')
+divs = soup.find_all('div', {'class': 'MjjYud'})
+print("Count: " + str(len(divs)))
+
+links = []
+bios = []
+cyberchecks = []
+
+for div in divs:
+    try:
+        second_div = div.find('div', {'class': 'g Ww4FFb vt6azd tF2Cxc asEBEc'})
+        third_div = second_div.find('div', {'class': 'kvH3mc BToiNc UK95Uc'})
+        fourth_div = third_div.find('div', {'class': 'Z26q7c UK95Uc jGGQ5e'})
+        fifth_div = fourth_div.find('div', {'class': 'yuRUbf'})
+        link = fifth_div.find('a')['href']
+        links.append(link)
+    except Exception as e:
+        print(f"An error occurred while processing: {str(e)}")
+
+for newdiv in divs:
+    try:
+        newsecond_div = newdiv.find('div', {'class': 'g Ww4FFb vt6azd tF2Cxc asEBEc'})
+        newthird_div = newsecond_div.find('div', {'class': 'kvH3mc BToiNc UK95Uc'})
+        newfourth_div = newthird_div.find('div', {'class': 'Z26q7c UK95Uc'})
+        newfifth_div = newfourth_div.find('div', {'class': 'VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf'})
+        newbio = newfifth_div.find('span')
+        bios.append(newbio.text)
+    except Exception as e:
+        print(f"An error occurred while processing: {str(e)}")
+        
+def find_CyberSecurity(some_string):
+    str_main = 'CyberSecurity'
+    return str_main in some_string
+
+for cybercheck in divs:
+    try:
+        new_second_div = cybercheck.find('div', {'class': 'g Ww4FFb vt6azd tF2Cxc asEBEc'})
+        new_third_div = new_second_div.find('div', {'class': 'kvH3mc BToiNc UK95Uc'})
+        new_fourth_div = new_third_div.find('div', {'class': 'Z26q7c UK95Uc'})
+        new_fifth_div = new_fourth_div.find('div', {'class': 'VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf'})
+        newcybercheck = new_fifth_div.find('span')
+        if find_CyberSecurity(newcybercheck) == False:
+            cyberchecks.append('N')
+        else:
+            cyberchecks.append('Y')
+        #cyberchecks.append(newcybercheck.text)
+    except Exception as e:
+        print(f"An error occurred while processing: {str(e)}")
+
+filename = f"profiles_{jobTitle}_{location}.csv"
+
+with open(filename, "w", newline="", encoding="utf-8") as file:
+    writer = csv.writer(file)
+    writer.writerow(["Links", "Bios", "CyberSecurity(Y/N)"])
+    for link, bio, cybercheck in zip(links, bios, cyberchecks):
+        writer.writerow([link, bio, cybercheck])
+
+print(f"[+] Links saved to '{filename}' file.")
+
+
+
+    
+    
