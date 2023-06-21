@@ -2,7 +2,6 @@
 # Uses Google SERP to scrape LinkedIn profile links 
 # Prone to IP blocking so use with a VPN if possible
 
-
 import requests
 from bs4 import BeautifulSoup
 import csv

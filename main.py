@@ -25,7 +25,6 @@ print('\n\n\n', "------------- PROFILE FETCHER v1 -------------\n")
 jobTitle = input("[*] Enter Job Title: ")
 location = input("[*] Enter Location: ")
 
-
 url = f"http://www.google.com/search?q=+%22{jobTitle}%22+%22{location}%22 -intitle:%22profiles%22 -inurl:%22dir/%22 +site:in.linkedin.com/in/ OR site:in.linkedin.com/pub/&num=100"
 
 #"CEO" "Delhi" -intitle:"profiles" -inurl:"dir/"  site:in.linkedin.com/in/ OR site:in.linkedin.com/pub/
