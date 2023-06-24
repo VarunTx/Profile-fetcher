@@ -27,6 +27,8 @@ location = input("[*] Enter Location: ")
 
 url = f"http://www.google.com/search?q=+%22{jobTitle}%22+%22{location}%22 -intitle:%22profiles%22 -inurl:%22dir/%22 +site:in.linkedin.com/in/ OR site:in.linkedin.com/pub/&num=100"
 
+# add'+%22Cybersecurity%22' to the above link to check whether the logic of checking if a company is a cybersecurity company or not working. 
+
 #"CEO" "Delhi" -intitle:"profiles" -inurl:"dir/"  site:in.linkedin.com/in/ OR site:in.linkedin.com/pub/
 
 # First level: div class="MjjYud"
@@ -66,11 +68,24 @@ for newdiv in divs:
         bios.append(newbio.text)
     except Exception as e:
         print(f"An error occurred while processing: {str(e)}")
-        
-def find_CyberSecurity(some_string):
-    str_main = 'CyberSecurity'
-    return str_main in some_string
 
+for cybercheck in divs:  
+	try:
+			new_second_div = cybercheck.find('div', {'class': 'g Ww4FFb vt6azd tF2Cxc asEBEc'})
+			new_third_div = new_second_div.find('div', {'class': 'kvH3mc BToiNc UK95Uc'})
+			new_fourth_div = new_third_div.find('div', {'class': 'Z26q7c UK95Uc'})
+			new_fifth_div = new_fourth_div.find('div', {'class': 'VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf'})
+			newcybercheck = new_fifth_div.find('span')
+			if 'cybersecurity' or 'security' or 'cyber security' in newcybercheck.lower():
+				cyberchecks.append('Y')
+			else:
+				cyberchecks.append('N')
+	except Exception as e:
+		print(f"An error occurred while processing the div: {str(e)}")
+                
+
+#old code that is not functional, will remove this after solving all errors. 		
+'''
 for cybercheck in divs:
     try:
         new_second_div = cybercheck.find('div', {'class': 'g Ww4FFb vt6azd tF2Cxc asEBEc'})
@@ -85,12 +100,14 @@ for cybercheck in divs:
         #cyberchecks.append(newcybercheck.text)
     except Exception as e:
         print(f"An error occurred while processing: {str(e)}")
+        
+'''
 
 filename = f"profiles_{jobTitle}_{location}.csv"
 
 with open(filename, "w", newline="", encoding="utf-8") as file:
     writer = csv.writer(file)
-    writer.writerow(["Links", "Bios", "CyberSecurity(Y/N)"])
+    writer.writerow(["Links", "Bio", "CyberSecurity(Y/N)"])
     for link, bio, cybercheck in zip(links, bios, cyberchecks):
         writer.writerow([link, bio, cybercheck])
 
